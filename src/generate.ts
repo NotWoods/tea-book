@@ -1,6 +1,11 @@
 import { config } from "https://deno.land/std@0.147.0/dotenv/mod.ts";
 import { format as formatDate } from "https://deno.land/std@0.177.0/datetime/format.ts";
-import { DatabasePage, NotionClient, RichTextItemResponse } from "./notion.ts";
+import { NotionClient } from "./notion.ts";
+import {
+  formatTeaDatabasePage,
+  FormattedTeaDatabasePage,
+  generateSvg,
+} from "./svg.ts";
 
 const configData = await config({ safe: true, defaults: undefined });
 const notionApi = new NotionClient(configData["NOTION_TOKEN"]);
@@ -21,9 +26,9 @@ async function getTeaList() {
     },
   });
 
-  const topDisplayTeas: DatabasePage[] = [];
-  const bottomDisplayTeas: DatabasePage[] = [];
-  const pantryTeas: DatabasePage[] = [];
+  const topDisplayTeas: FormattedTeaDatabasePage[] = [];
+  const bottomDisplayTeas: FormattedTeaDatabasePage[] = [];
+  const pantryTeas: FormattedTeaDatabasePage[] = [];
   for await (const page of teaListIterator) {
     if (page.properties.Location.type !== "multi_select") {
       throw new Error(
@@ -34,12 +39,13 @@ async function getTeaList() {
       .map(({ name }) => name)
       .find((name) => name.startsWith("Display"));
 
+    const formatted = formatTeaDatabasePage(page);
     if (location === "Display (top)") {
-      topDisplayTeas.push(page);
+      topDisplayTeas.push(formatted);
     } else if (location === "Display (bottom)") {
-      bottomDisplayTeas.push(page);
+      bottomDisplayTeas.push(formatted);
     } else {
-      pantryTeas.push(page);
+      pantryTeas.push(formatted);
     }
   }
 
@@ -50,48 +56,7 @@ async function getTeaList() {
   };
 }
 
-function plainText(richText: readonly RichTextItemResponse[]) {
-  return richText.map((text) => text.plain_text).join("");
-}
-
-function formatTeaDatabasePage({ properties }: DatabasePage) {
-  if (properties.Name.type !== "title") {
-    throw new Error(`Expected Name to be a title, got ${properties.Name.type}`);
-  } else if (properties.Caffeine.type !== "select") {
-    throw new Error(
-      `Expected Caffeine to be a select, got ${properties.Caffeine.type}`
-    );
-  } else if (properties.Temperature.type !== "formula") {
-    throw new Error(
-      `Expected Temperature to be a formula, got ${properties.Temperature.type}`
-    );
-  } else if (properties["Steep time"].type !== "formula") {
-    throw new Error(
-      `Expected Steep time to be a formula, got ${properties["Steep time"].type}`
-    );
-  } else if (properties.Serving.type !== "rich_text") {
-    throw new Error(
-      `Expected Serving to be a rich_text, got ${properties.Serving.type}`
-    );
-  } else if (properties.Type.type !== "select") {
-    throw new Error(
-      `Expected Type to be a select, got ${properties.Type.type}`
-    );
-  }
-
-  return {
-    name: plainText(properties.Name.title),
-    caffine: properties.Caffeine.select?.name ?? "",
-    temperature: properties.Temperature.formula.string,
-    steepTime: properties["Steep time"].formula.string,
-    serving: plainText(properties.Serving.rich_text),
-    type: properties.Type.select?.name ?? "",
-  };
-}
-
-function generateTable(teaList: readonly DatabasePage[]) {
-  const items = teaList.map(formatTeaDatabasePage);
-
+function generateTable(items: readonly FormattedTeaDatabasePage[]) {
   const columnLabels = {
     name: "Tea",
     caffine: " Caffeine ",
@@ -155,12 +120,12 @@ function generateTable(teaList: readonly DatabasePage[]) {
 }
 
 const { topDisplayTeas, bottomDisplayTeas, pantryTeas } = await getTeaList();
-const date = new Date();
+await generateSvg(topDisplayTeas, bottomDisplayTeas);
 
 const book = `---
 title: Tea
 creator: Tiger x Daphne
-date: ${formatDate(date, "yyyy-MM-dd")}
+date: ${formatDate(new Date(), "yyyy-MM-dd")}
 lang: en-US
 ...
 
