@@ -97,6 +97,24 @@ interface TodoBlock extends BaseBlockObject {
   };
 }
 
+interface ImageBlock extends BaseBlockObject {
+  type: "image";
+  image: FileObject;
+}
+
+type FileObject =
+  | { type: "external"; external: { url: string } }
+  | { type: "file"; file: { url: string } };
+
+export function fileUrl(file: FileObject) {
+  switch (file.type) {
+    case "external":
+      return file.external.url;
+    case "file":
+      return file.file.url;
+  }
+}
+
 export type BlockObject =
   | TextBlock<"heading_1">
   | TextBlock<"heading_2">
@@ -105,7 +123,8 @@ export type BlockObject =
   | TextBlock<"bulleted_list_item">
   | TextBlock<"numbered_list_item">
   | TextBlock<"quote">
-  | TodoBlock;
+  | TodoBlock
+  | ImageBlock;
 
 interface TitlePropertyItem {
   object: "property_item";
@@ -196,5 +215,20 @@ export class NotionClient extends ApiClient {
     const response = await this.fetch(`/v1/pages/${pageId}/properties/title`);
     const list: { results: TitlePropertyItem[] } = await response.json();
     return list.results[0].title.plain_text;
+  }
+}
+
+export function assertType<T extends { type: string }, Type extends T["type"]>(
+  property: T,
+  type: Type
+): asserts property is T & { type: Type } {
+  if (property.type !== type) {
+    throw new Error(
+      `Expected type ${type} but got ${property.type}\n ${JSON.stringify(
+        property,
+        null,
+        2
+      )}`
+    );
   }
 }

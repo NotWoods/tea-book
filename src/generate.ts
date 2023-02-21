@@ -1,10 +1,12 @@
 import { config } from "https://deno.land/std@0.147.0/dotenv/mod.ts";
 import { format as formatDate } from "https://deno.land/std@0.177.0/datetime/format.ts";
-import { NotionClient } from "./notion.ts";
+import { fileUrl, NotionClient } from "./notion.ts";
 import {
+  caffeineLevels,
   formatTeaDatabasePage,
   FormattedTeaDatabasePage,
   generateSvg,
+  plainText,
 } from "./svg.ts";
 
 const configData = await config({ safe: true, defaults: undefined });
@@ -56,6 +58,10 @@ async function getTeaList() {
   };
 }
 
+function objectKeys<Key extends PropertyKey>(obj: Record<Key, unknown>): Key[] {
+  return Object.keys(obj) as Key[];
+}
+
 function generateTable(items: readonly FormattedTeaDatabasePage[]) {
   const columnLabels = {
     name: "Tea",
@@ -64,13 +70,10 @@ function generateTable(items: readonly FormattedTeaDatabasePage[]) {
     steepTime: " Steep time",
     serving: "Serving",
     type: "Type",
-  };
+  } satisfies Partial<Record<keyof FormattedTeaDatabasePage, string>>;
 
   // Measure the longest string in each column
-  const columnCharacterSizes: Record<
-    keyof ReturnType<typeof formatTeaDatabasePage>,
-    number
-  > = {
+  const columnCharacterSizes: Record<keyof typeof columnLabels, number> = {
     name: columnLabels.name.length,
     caffine: columnLabels.caffine.length,
     temperature: columnLabels.temperature.length,
@@ -79,16 +82,16 @@ function generateTable(items: readonly FormattedTeaDatabasePage[]) {
     type: columnLabels.type.length,
   };
   for (const item of items) {
-    for (const [key, value] of Object.entries(item)) {
-      columnCharacterSizes[key as keyof typeof columnCharacterSizes] = Math.max(
-        columnCharacterSizes[key as keyof typeof columnCharacterSizes],
-        value.length
+    for (const column of objectKeys(columnLabels)) {
+      columnCharacterSizes[column] = Math.max(
+        columnCharacterSizes[column],
+        item[column].length
       );
     }
   }
 
   function formatRow(
-    item: ReturnType<typeof formatTeaDatabasePage>,
+    item: Pick<FormattedTeaDatabasePage, keyof typeof columnLabels>,
     padString?: string
   ) {
     return [
@@ -119,6 +122,39 @@ function generateTable(items: readonly FormattedTeaDatabasePage[]) {
   return [headerRow, dividerRow, ...rows].join("\n");
 }
 
+async function generateChapter(tea: FormattedTeaDatabasePage) {
+  const serving = tea.serving.replace(" / ", "/");
+  const caffeine = caffeineLevels[tea.caffine] ?? "";
+
+  const content: string[] = [];
+  for await (const block of notionApi.blockChildren(tea.id)) {
+    switch (block.type) {
+      case "paragraph":
+        content.push(plainText(block.paragraph.rich_text));
+        break;
+      case "image": {
+        const url = fileUrl(block.image);
+        content.push(`![${tea.name}](${url})`);
+        break;
+      }
+      default:
+        throw new Error(`Unexpected block type: ${block.type} in ${tea.name}`);
+    }
+  }
+
+  return `
+# ${tea.name}
+
+${tea.type}, ${caffeine} <br />
+${serving}, steep ${tea.steepTime}, ${tea.temperature}
+
+${tea.location.join(", ")}
+
+${content.length > 0 ? "---\n" : ""}
+${content.join("\n\n")}
+`;
+}
+
 const { topDisplayTeas, bottomDisplayTeas, pantryTeas } = await getTeaList();
 await generateSvg(topDisplayTeas, bottomDisplayTeas);
 
@@ -127,6 +163,7 @@ title: Tea
 creator: Tiger x Daphne
 date: ${formatDate(new Date(), "yyyy-MM-dd")}
 lang: en-US
+cover-image: tea.png
 ...
 
 Table: Display (top)
@@ -139,5 +176,13 @@ ${generateTable(bottomDisplayTeas)}
 
 Table: Pantry
 
-${generateTable(pantryTeas)}`;
+${generateTable(pantryTeas)}
+
+${(
+  await Promise.all(
+    [...topDisplayTeas, ...bottomDisplayTeas, ...pantryTeas].map(
+      generateChapter
+    )
+  )
+).join("\n\n")}`;
 await Deno.writeTextFile("tea-list.txt", book);

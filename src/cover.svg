@@ -1,4 +1,13 @@
 <svg viewBox="0 0 600 800" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;font-family:'BookAntiqua','Book Antiqua',serif">
+  <style>
+    .name {
+      font-size: 24px;
+      font-weight: bold;
+    }
+    .desc {
+      font-size: 16px;
+    }
+  </style>
   <use xlink:href="#a" width="600" height="800"/>
   <text x="240" y="397.4" style="font-size:12.1px" transform="matrix(1 0 0 .9091 0 16.5)">TOP DISPLAY SHELF</text>
   <path d="M593 343.2c-.5.4-.6.3-1 0V32a24 24 0 0 0-24-24H59.7c.3-.1 6.3-1 7.2-1H568a25 25 0 0 1 25 25v311.2Z" style="fill:#404040"/>
