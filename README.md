@@ -9,5 +9,7 @@ inkscape --export-type="png" tea.svg
 
 ```powershell
 deno run --allow-net --allow-env --allow-read --allow-write .\src\generate.ts
-pandoc tea-list.txt -o tea.epub
+pandoc tea-list.txt -o tea.epub --epub-title-page=false
 ```
+
+Validate result with https://epub-reader.online

@@ -89,6 +89,7 @@ function generateTable(items: readonly FormattedTeaDatabasePage[]) {
       );
     }
   }
+  columnCharacterSizes.name += "[]".length;
 
   function formatRow(
     item: Pick<FormattedTeaDatabasePage, keyof typeof columnLabels>,
@@ -118,7 +119,9 @@ function generateTable(items: readonly FormattedTeaDatabasePage[]) {
     },
     "-"
   );
-  const rows = items.map((item) => formatRow(item));
+  const rows = items.map((item) =>
+    formatRow({ ...item, name: `[${item.name}]` })
+  );
   return [headerRow, dividerRow, ...rows].join("\n");
 }
 
@@ -134,7 +137,7 @@ async function generateChapter(tea: FormattedTeaDatabasePage) {
         break;
       case "image": {
         const url = fileUrl(block.image);
-        content.push(`![${tea.name}](${url})`);
+        content.push(`![${tea.name}](${url}) \\`);
         break;
       }
       default:
@@ -164,6 +167,7 @@ creator: Tiger x Daphne
 date: ${formatDate(new Date(), "yyyy-MM-dd")}
 lang: en-US
 cover-image: tea.png
+css: src/epub.css
 ...
 
 Table: Display (top)
