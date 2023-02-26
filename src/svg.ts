@@ -1,13 +1,13 @@
-import { assertType, DatabasePage, RichTextItemResponse } from "./notion.ts";
+import type { PageObjectResponse } from "npm:@notionhq/client/build/src/api-endpoints";
+import { assertType, plainText } from "./notion.ts";
 
-export function plainText(richText: readonly RichTextItemResponse[]) {
-  return richText.map((text) => text.plain_text).join("");
-}
-export function formatTeaDatabasePage({ id, properties }: DatabasePage) {
+export function formatTeaDatabasePage({ id, properties }: PageObjectResponse) {
   assertType(properties.Name, "title");
   assertType(properties.Caffeine, "select");
   assertType(properties.Temperature, "formula");
+  assertType(properties.Temperature.formula, "string");
   assertType(properties["Steep time"], "formula");
+  assertType(properties["Steep time"].formula, "string");
   assertType(properties.Serving, "rich_text");
   assertType(properties.Type, "select");
   assertType(properties.Location, "multi_select");
@@ -16,8 +16,8 @@ export function formatTeaDatabasePage({ id, properties }: DatabasePage) {
     id,
     name: plainText(properties.Name.title),
     caffine: properties.Caffeine.select?.name ?? "",
-    temperature: properties.Temperature.formula.string,
-    steepTime: properties["Steep time"].formula.string,
+    temperature: properties.Temperature.formula.string ?? "",
+    steepTime: properties["Steep time"].formula.string ?? "",
     serving: plainText(properties.Serving.rich_text),
     type: properties.Type.select?.name ?? "",
     location: properties.Location.multi_select.map(({ name }) => name),
@@ -39,11 +39,11 @@ function generateTeaGroup(tea: FormattedTeaDatabasePage, position: string) {
   const name = tea.name;
   let transform = "";
   if (name.length > 20) {
-    transform += `transform="scale(0.9 1)" `;
+    transform += "scale(0.9 1)";
   }
 
   return `<g transform="translate(${position})">
-  <text ${transform}class="name">${name}</text>
+  <text transform="${transform}" class="name">${name}</text>
   <line x1="0" y1="10" x2="220" y2="10" stroke="black" />
   <text y="30" class="desc">${tea.type}, ${caffeine}</text>
   <text y="48" class="desc">${serving}, steep ${tea.steepTime}, ${tea.temperature}</text>
@@ -75,7 +75,7 @@ export async function generateSvg(
   bottomDisplayTeas: readonly FormattedTeaDatabasePage[]
 ) {
   const svgTemplate = await Deno.readTextFile(
-    new URL("./cover.svg", import.meta.url)
+    new URL("../assets/cover.svg", import.meta.url)
   );
 
   const topGroup = generateDisplayGroup(topDisplayTeas, "8 8");

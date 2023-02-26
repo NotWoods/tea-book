@@ -1,19 +1,25 @@
-import { config } from "https://deno.land/std@0.147.0/dotenv/mod.ts";
-import { format as formatDate } from "https://deno.land/std@0.177.0/datetime/format.ts";
-import { fileUrl, NotionClient } from "./notion.ts";
+import { load } from "std/dotenv/mod.ts";
+import { format as formatDate } from "std/datetime/format.ts";
+import {
+  Client,
+  iteratePaginatedAPI,
+  isFullBlock,
+  isFullPage,
+} from "npm:@notionhq/client";
+import { fileUrl, plainText } from "./notion.ts";
 import {
   caffeineLevels,
   formatTeaDatabasePage,
   FormattedTeaDatabasePage,
   generateSvg,
-  plainText,
 } from "./svg.ts";
 
-const configData = await config({ safe: true, defaults: undefined });
-const notionApi = new NotionClient(configData["NOTION_TOKEN"]);
+const env = await load({ restrictEnvAccessTo: ["NOTION_TOKEN", "NOTION_DB"] });
+const notion = new Client({ auth: env["NOTION_TOKEN"] });
 
 async function getTeaList() {
-  const teaListIterator = notionApi.queryDatabase(configData["NOTION_DB"], {
+  const teaListIterator = iteratePaginatedAPI(notion.databases.query, {
+    database_id: env["NOTION_DB"],
     sorts: [
       {
         property: "Location",
@@ -32,6 +38,10 @@ async function getTeaList() {
   const bottomDisplayTeas: FormattedTeaDatabasePage[] = [];
   const pantryTeas: FormattedTeaDatabasePage[] = [];
   for await (const page of teaListIterator) {
+    if (!isFullPage(page)) {
+      continue;
+    }
+
     if (page.properties.Location.type !== "multi_select") {
       throw new Error(
         `Expected Location to be a multi_select, got ${page.properties.Location.type}`
@@ -129,8 +139,16 @@ async function generateChapter(tea: FormattedTeaDatabasePage) {
   const serving = tea.serving.replace(" / ", "/");
   const caffeine = caffeineLevels[tea.caffine] ?? "";
 
+  const blocksIterator = iteratePaginatedAPI(notion.blocks.children.list, {
+    block_id: tea.id,
+  });
+
   const content: string[] = [];
-  for await (const block of notionApi.blockChildren(tea.id)) {
+  for await (const block of blocksIterator) {
+    if (!isFullBlock(block)) {
+      continue;
+    }
+
     switch (block.type) {
       case "paragraph":
         content.push(plainText(block.paragraph.rich_text));
@@ -167,7 +185,7 @@ creator: Tiger x Daphne
 date: ${formatDate(new Date(), "yyyy-MM-dd")}
 lang: en-US
 cover-image: tea.png
-css: src/epub.css
+css: assets/epub.css
 ...
 
 Table: Display (top)

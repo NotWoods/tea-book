@@ -13,3 +13,5 @@ pandoc tea-list.txt -o tea.epub --epub-title-page=false
 ```
 
 Validate result with https://epub-reader.online
+
+https://www.nook.com/services/cms/doc/nookpress/us/en_us/faq/formatting-guidelines-epub.html
