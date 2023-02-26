@@ -1,42 +1,17 @@
-import type { PageObjectResponse } from "npm:@notionhq/client/build/src/api-endpoints";
-import { assertType, plainText } from "./notion.ts";
+import { CAFFEINE_LEVELS, FormattedTeaDatabasePage } from "./notion.ts";
 
-export function formatTeaDatabasePage({ id, properties }: PageObjectResponse) {
-  assertType(properties.Name, "title");
-  assertType(properties.Caffeine, "select");
-  assertType(properties.Temperature, "formula");
-  assertType(properties.Temperature.formula, "string");
-  assertType(properties["Steep time"], "formula");
-  assertType(properties["Steep time"].formula, "string");
-  assertType(properties.Serving, "rich_text");
-  assertType(properties.Type, "select");
-  assertType(properties.Location, "multi_select");
-
-  return {
-    id,
-    name: plainText(properties.Name.title),
-    caffine: properties.Caffeine.select?.name ?? "",
-    temperature: properties.Temperature.formula.string ?? "",
-    steepTime: properties["Steep time"].formula.string ?? "",
-    serving: plainText(properties.Serving.rich_text),
-    type: properties.Type.select?.name ?? "",
-    location: properties.Location.multi_select.map(({ name }) => name),
-  };
-}
-
-export type FormattedTeaDatabasePage = ReturnType<typeof formatTeaDatabasePage>;
-
-export const caffeineLevels: Partial<Record<string, string>> = {
-  "☆☆☆": "decaf",
-  "★☆☆": "low caffeine",
-  "★★☆": "moderate caffeine",
-  "★★★": "high caffeine",
-};
-
+/**
+ * Create a set of SVG text that summarizes the given tea information.
+ * @param tea Tea information to use.
+ * @param position Where to position the group in the parent SVG element.
+ * @returns SVG group element containing the tea information.
+ */
 function generateTeaGroup(tea: FormattedTeaDatabasePage, position: string) {
   const serving = tea.serving.replace(" / ", "/");
-  const caffeine = caffeineLevels[tea.caffine] ?? "";
+  const caffeine = CAFFEINE_LEVELS[tea.caffeine] ?? "";
   const name = tea.name;
+
+  // Use condensed font if name is too long
   let transform = "";
   if (name.length > 20) {
     transform += "scale(0.9 1)";
@@ -50,6 +25,12 @@ function generateTeaGroup(tea: FormattedTeaDatabasePage, position: string) {
 </g>`;
 }
 
+/**
+ * Create a set of SVG groups that summarizes all the given tea information.
+ * @param teaList List of tea information to use. Should be 6 items or less.
+ * @param position Where to position the group in the parent SVG element.
+ * @returns SVG group element containing one group per tea.
+ */
 function generateDisplayGroup(
   teaList: readonly FormattedTeaDatabasePage[],
   position: `${number} ${number}`
@@ -70,6 +51,17 @@ function generateDisplayGroup(
 </g>`;
 }
 
+/**
+ * Writes an SVG file to the current directory to use as an ebook cover.
+ * The image contains a summary of the given tea information.
+ *
+ * The cover is generated from a template SVG file.
+ * The template must contain the slot `<g id="tea" />` where the tea information will be inserted.
+ *
+ * @param topDisplayTeas Items displayed on the top half of the cover.
+ * @param bottomDisplayTeas Items displayed on the bottom half of the cover.
+ * @returns Promise that resolves once the cover image is written.
+ */
 export async function generateSvg(
   topDisplayTeas: readonly FormattedTeaDatabasePage[],
   bottomDisplayTeas: readonly FormattedTeaDatabasePage[]

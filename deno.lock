@@ -13,7 +13,8 @@
   },
   "npm": {
     "specifiers": {
-      "@notionhq/client": "@notionhq/client@2.2.3"
+      "@notionhq/client": "@notionhq/client@2.2.3",
+      "@notionhq/client@2.2.3": "@notionhq/client@2.2.3"
     },
     "packages": {
       "@notionhq/client@2.2.3": {

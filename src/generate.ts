@@ -1,18 +1,19 @@
-import { load } from "std/dotenv/mod.ts";
-import { format as formatDate } from "std/datetime/format.ts";
 import {
   Client,
-  iteratePaginatedAPI,
   isFullBlock,
   isFullPage,
+  iteratePaginatedAPI,
 } from "npm:@notionhq/client";
-import { fileUrl, plainText } from "./notion.ts";
+import { format as formatDate } from "std/datetime/format.ts";
+import { load } from "std/dotenv/mod.ts";
 import {
-  caffeineLevels,
+  CAFFEINE_LEVELS,
+  fileUrl,
   formatTeaDatabasePage,
   FormattedTeaDatabasePage,
-  generateSvg,
-} from "./svg.ts";
+  plainText,
+} from "./notion.ts";
+import { generateSvg } from "./svg.ts";
 
 const env = await load({ restrictEnvAccessTo: ["NOTION_TOKEN", "NOTION_DB"] });
 const notion = new Client({ auth: env["NOTION_TOKEN"] });
@@ -75,7 +76,7 @@ function objectKeys<Key extends PropertyKey>(obj: Record<Key, unknown>): Key[] {
 function generateTable(items: readonly FormattedTeaDatabasePage[]) {
   const columnLabels = {
     name: "Tea",
-    caffine: " Caffeine ",
+    caffeine: " Caffeine ",
     temperature: " Temp",
     steepTime: " Steep time",
     serving: "Serving",
@@ -85,7 +86,7 @@ function generateTable(items: readonly FormattedTeaDatabasePage[]) {
   // Measure the longest string in each column
   const columnCharacterSizes: Record<keyof typeof columnLabels, number> = {
     name: columnLabels.name.length,
-    caffine: columnLabels.caffine.length,
+    caffeine: columnLabels.caffeine.length,
     temperature: columnLabels.temperature.length,
     steepTime: columnLabels.steepTime.length,
     serving: columnLabels.serving.length,
@@ -108,7 +109,7 @@ function generateTable(items: readonly FormattedTeaDatabasePage[]) {
     return [
       item.name.padEnd(columnCharacterSizes.name, padString),
       "   ",
-      item.caffine.padEnd(columnCharacterSizes.caffine, padString),
+      item.caffeine.padEnd(columnCharacterSizes.caffeine, padString),
       item.temperature.padStart(columnCharacterSizes.temperature, padString),
       item.steepTime.padStart(columnCharacterSizes.steepTime, padString),
       item.serving.padEnd(columnCharacterSizes.serving, padString),
@@ -121,7 +122,7 @@ function generateTable(items: readonly FormattedTeaDatabasePage[]) {
   const dividerRow = formatRow(
     {
       name: "",
-      caffine: "",
+      caffeine: "",
       temperature: "",
       steepTime: "",
       serving: "",
@@ -137,7 +138,7 @@ function generateTable(items: readonly FormattedTeaDatabasePage[]) {
 
 async function generateChapter(tea: FormattedTeaDatabasePage) {
   const serving = tea.serving.replace(" / ", "/");
-  const caffeine = caffeineLevels[tea.caffine] ?? "";
+  const caffeine = CAFFEINE_LEVELS[tea.caffeine] ?? "";
 
   const blocksIterator = iteratePaginatedAPI(notion.blocks.children.list, {
     block_id: tea.id,
