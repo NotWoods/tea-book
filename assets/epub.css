@@ -1,3 +1,26 @@
 img {
-  max-height: 300px;
+  float: right;
+  margin: 8px;
+  margin-right: 0;
+}
+
+table {
+  width: 100%;
+}
+.cell-name {
+  border-top: 1px solid;
+  text-align: left;
+}
+.cell-caffeine,
+.cell-serving,
+.cell-type {
+  text-align: left;
+}
+.cell-temperature,
+.cell-steep-time {
+  text-align: right;
+}
+
+p {
+  text-indent: 0;
 }

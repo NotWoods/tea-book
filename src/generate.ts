@@ -7,7 +7,10 @@ import {
 import { format as formatDate } from "std/datetime/format.ts";
 import { load } from "std/dotenv/mod.ts";
 import {
-  CAFFEINE_LEVELS,
+  generateChapterPropertiesMarkdown,
+  generateTeaTableHtml,
+} from "./book.ts";
+import {
   fileUrl,
   formatTeaDatabasePage,
   FormattedTeaDatabasePage,
@@ -15,9 +18,16 @@ import {
 } from "./notion.ts";
 import { generateSvg } from "./svg.ts";
 
-const env = await load({ restrictEnvAccessTo: ["NOTION_TOKEN", "NOTION_DB"] });
+const env = await load({
+  restrictEnvAccessTo: ["NOTION_TOKEN", "NOTION_DB"],
+  defaultsPath: "",
+});
 const notion = new Client({ auth: env["NOTION_TOKEN"] });
 
+/**
+ * Downloads all the teas from Notion and formats them into lists.
+ * @returns A list of teas, grouped by location.
+ */
 async function getTeaList() {
   const teaListIterator = iteratePaginatedAPI(notion.databases.query, {
     database_id: env["NOTION_DB"],
@@ -48,14 +58,14 @@ async function getTeaList() {
         `Expected Location to be a multi_select, got ${page.properties.Location.type}`
       );
     }
-    const location = page.properties.Location.multi_select
-      .map(({ name }) => name)
-      .find((name) => name.startsWith("Display"));
-
     const formatted = formatTeaDatabasePage(page);
-    if (location === "Display (top)") {
+
+    const locations = new Set(
+      page.properties.Location.multi_select.map(({ name }) => name)
+    );
+    if (locations.has("Display (top)")) {
       topDisplayTeas.push(formatted);
-    } else if (location === "Display (bottom)") {
+    } else if (locations.has("Display (bottom)")) {
       bottomDisplayTeas.push(formatted);
     } else {
       pantryTeas.push(formatted);
@@ -69,77 +79,11 @@ async function getTeaList() {
   };
 }
 
-function objectKeys<Key extends PropertyKey>(obj: Record<Key, unknown>): Key[] {
-  return Object.keys(obj) as Key[];
-}
-
-function generateTable(items: readonly FormattedTeaDatabasePage[]) {
-  const columnLabels = {
-    name: "Tea",
-    caffeine: " Caffeine ",
-    temperature: " Temp",
-    steepTime: " Steep time",
-    serving: "Serving",
-    type: "Type",
-  } satisfies Partial<Record<keyof FormattedTeaDatabasePage, string>>;
-
-  // Measure the longest string in each column
-  const columnCharacterSizes: Record<keyof typeof columnLabels, number> = {
-    name: columnLabels.name.length,
-    caffeine: columnLabels.caffeine.length,
-    temperature: columnLabels.temperature.length,
-    steepTime: columnLabels.steepTime.length,
-    serving: columnLabels.serving.length,
-    type: columnLabels.type.length,
-  };
-  for (const item of items) {
-    for (const column of objectKeys(columnLabels)) {
-      columnCharacterSizes[column] = Math.max(
-        columnCharacterSizes[column],
-        item[column].length
-      );
-    }
-  }
-  columnCharacterSizes.name += "[]".length;
-
-  function formatRow(
-    item: Pick<FormattedTeaDatabasePage, keyof typeof columnLabels>,
-    padString?: string
-  ) {
-    return [
-      item.name.padEnd(columnCharacterSizes.name, padString),
-      "   ",
-      item.caffeine.padEnd(columnCharacterSizes.caffeine, padString),
-      item.temperature.padStart(columnCharacterSizes.temperature, padString),
-      item.steepTime.padStart(columnCharacterSizes.steepTime, padString),
-      item.serving.padEnd(columnCharacterSizes.serving, padString),
-      item.type.padEnd(columnCharacterSizes.type, padString),
-    ].join(" ");
-  }
-
-  // Generate the table
-  const headerRow = formatRow(columnLabels);
-  const dividerRow = formatRow(
-    {
-      name: "",
-      caffeine: "",
-      temperature: "",
-      steepTime: "",
-      serving: "",
-      type: "",
-    },
-    "-"
-  );
-  const rows = items.map((item) =>
-    formatRow({ ...item, name: `[${item.name}]` })
-  );
-  return [headerRow, dividerRow, ...rows].join("\n");
-}
-
-async function generateChapter(tea: FormattedTeaDatabasePage) {
-  const serving = tea.serving.replace(" / ", "/");
-  const caffeine = CAFFEINE_LEVELS[tea.caffeine] ?? "";
-
+/**
+ * Generate markdown chapter content for a specific tea.
+ * Chapters are signified by a heading 1 (`#`).
+ */
+async function generateChapterMarkdown(tea: FormattedTeaDatabasePage) {
   const blocksIterator = iteratePaginatedAPI(notion.blocks.children.list, {
     block_id: tea.id,
   });
@@ -156,7 +100,7 @@ async function generateChapter(tea: FormattedTeaDatabasePage) {
         break;
       case "image": {
         const url = fileUrl(block.image);
-        content.push(`![${tea.name}](${url}) \\`);
+        content.push(`<img src="${url}" height="200" />`);
         break;
       }
       default:
@@ -164,13 +108,7 @@ async function generateChapter(tea: FormattedTeaDatabasePage) {
     }
   }
 
-  return `
-# ${tea.name}
-
-${tea.type}, ${caffeine} <br />
-${serving}, steep ${tea.steepTime}, ${tea.temperature}
-
-${tea.location.join(", ")}
+  return `${generateChapterPropertiesMarkdown(tea)}
 
 ${content.length > 0 ? "---\n" : ""}
 ${content.join("\n\n")}
@@ -178,6 +116,8 @@ ${content.join("\n\n")}
 }
 
 const { topDisplayTeas, bottomDisplayTeas, pantryTeas } = await getTeaList();
+
+// Generate the cover image SVG
 await generateSvg(topDisplayTeas, bottomDisplayTeas);
 
 const book = `---
@@ -189,23 +129,18 @@ cover-image: tea.png
 css: assets/epub.css
 ...
 
-Table: Display (top)
+${generateTeaTableHtml("Display (top)", topDisplayTeas)}
 
-${generateTable(topDisplayTeas)}
+${generateTeaTableHtml("Display (bottom)", bottomDisplayTeas)}
 
-Table: Display (bottom)
-
-${generateTable(bottomDisplayTeas)}
-
-Table: Pantry
-
-${generateTable(pantryTeas)}
+${generateTeaTableHtml("Pantry", pantryTeas)}
 
 ${(
   await Promise.all(
     [...topDisplayTeas, ...bottomDisplayTeas, ...pantryTeas].map(
-      generateChapter
+      generateChapterMarkdown
     )
   )
 ).join("\n\n")}`;
+// Write the book file for pandoc
 await Deno.writeTextFile("tea-list.txt", book);

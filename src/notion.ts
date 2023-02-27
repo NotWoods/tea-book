@@ -65,7 +65,7 @@ export interface FormattedTeaDatabasePage {
   /** Type of tea, such as "Black tea" or "Herbal tea". */
   type: string;
   /** Where in the house the tea is located at. */
-  location: string[];
+  location: readonly string[];
 }
 
 /**
