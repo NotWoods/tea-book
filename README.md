@@ -1,4 +1,4 @@
-# e-ink tea list
+# tea-Book: e-ink tea list
 
 At home, I have a display with small jars of loose tea leaves. I wanted to have some way to quickly reference what was poured out, so I created this script to pull a [list of teas from Notion](https://tigeroakes.notion.site/1043e8edb9094976af12a59f25e41286?v=2f64f0297c1649458f5958ec4e68cd03). It generates files for an e-reader to display, which allows me to have an easy to update handheld menu to show guests when they visit.
 
