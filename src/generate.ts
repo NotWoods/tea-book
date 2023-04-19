@@ -11,12 +11,11 @@ import {
   generateTeaTableHtml,
 } from "./book.ts";
 import {
-  fileUrl,
   formatTeaDatabasePage,
   FormattedTeaDatabasePage,
-  plainText,
-} from "./notion.ts";
-import { generateSvg } from "./svg.ts";
+} from "./notion/format-page.ts";
+import { fileUrl, plainText } from "./notion/utils.ts";
+import { generateSvg } from "./svg.tsx";
 
 const env = await load({
   restrictEnvAccessTo: ["NOTION_TOKEN", "NOTION_DB"],

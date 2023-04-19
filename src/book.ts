@@ -1,4 +1,7 @@
-import { CAFFEINE_LEVELS, FormattedTeaDatabasePage } from "./notion.ts";
+import {
+  CAFFEINE_LEVELS,
+  FormattedTeaDatabasePage,
+} from "./notion/format-page.ts";
 
 const CAFFEINE_LEVEL_CHARACTER_MAP = {
   "★": "●",

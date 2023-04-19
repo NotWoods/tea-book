@@ -1,60 +1,22 @@
 import type { PageObjectResponse } from "@notionhq/client/build/src/api-endpoints";
+import { assertType, plainText } from "./utils.ts";
 
 /**
- * Asserts that an object has a specific `type` field.
- * Throws an error if the type is incorrect.
- *
- * @example
- * assertType({ type: 'foo' }, 'foo') // passes
- * assertType({ type: 'foo' }, 'bar') // throws
- *
- * @param property The object to check.
- * @param type The expected type.
+ * Map of caffeine levels as defined in Notion to english strings for display.
  */
-export function assertType<
-  NotionObject extends { type: string },
-  Type extends NotionObject["type"]
->(
-  object: NotionObject,
-  type: Type
-): asserts object is NotionObject & { type: Type } {
-  if (object.type !== type) {
-    const stringified = JSON.stringify(object, null, 2);
-    throw new Error(
-      `Expected type ${type} but got ${object.type}\n ${stringified}`
-    );
-  }
-}
-
-/**
- * Converts an array of Notion rich text objects into a single string.
- */
-export function plainText(richText: readonly { plain_text: string }[]) {
-  return richText.map((text) => text.plain_text).join("");
-}
-
-type FileObject =
-  | { type: "external"; external: { url: string } }
-  | { type: "file"; file: { url: string } };
-
-/**
- * Extract the URL from a Notion file object.
- */
-export function fileUrl(file: FileObject) {
-  switch (file.type) {
-    case "external":
-      return file.external.url;
-    case "file":
-      return file.file.url;
-  }
-}
+export const CAFFEINE_LEVELS: Partial<Record<string, string>> = {
+  "☆☆☆": "decaf",
+  "★☆☆": "low caffeine",
+  "★★☆": "moderate caffeine",
+  "★★★": "high caffeine",
+};
 
 export interface FormattedTeaDatabasePage {
   /** Notion page ID */
   id: string;
   /** Name of the tea */
   name: string;
-  /** Caffeine level. Will match one of the entires in `CAFFEINE_LEVELS`. */
+  /** Caffeine level. Will match one of the keys in `CAFFEINE_LEVELS`. */
   caffeine: string;
   /** Temperature to steep the tea at. */
   temperature: string;
@@ -96,13 +58,3 @@ export function formatTeaDatabasePage({
     location: properties.Location.multi_select.map(({ name }) => name),
   };
 }
-
-/**
- * Map of caffeine levels as defined in Notion to english strings for display.
- */
-export const CAFFEINE_LEVELS: Partial<Record<string, string>> = {
-  "☆☆☆": "decaf",
-  "★☆☆": "low caffeine",
-  "★★☆": "moderate caffeine",
-  "★★★": "high caffeine",
-};

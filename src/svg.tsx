@@ -1,12 +1,23 @@
-import { CAFFEINE_LEVELS, FormattedTeaDatabasePage } from "./notion.ts";
+import h from "vhtml";
+import {
+  CAFFEINE_LEVELS,
+  FormattedTeaDatabasePage,
+} from "./notion/format-page.ts";
+
+/** String with x and y space separated values */
+type TranslatePosition = `${number} ${number}`;
 
 /**
- * Create a set of SVG text that summarizes the given tea information.
+ * Create a group of SVG text that summarizes the given tea information.
  * @param tea Tea information to use.
  * @param position Where to position the group in the parent SVG element.
  * @returns SVG group element containing the tea information.
  */
-function generateTeaGroup(tea: FormattedTeaDatabasePage, position: string) {
+function TeaInfo(props: {
+  tea: FormattedTeaDatabasePage;
+  position: TranslatePosition;
+}) {
+  const { tea } = props;
   const serving = tea.serving.replace(" / ", "/");
   const caffeine = CAFFEINE_LEVELS[tea.caffeine] ?? "";
   const name = tea.name;
@@ -17,12 +28,20 @@ function generateTeaGroup(tea: FormattedTeaDatabasePage, position: string) {
     transform += "scale(0.9 1)";
   }
 
-  return `<g transform="translate(${position})">
-  <text transform="${transform}" class="name">${name}</text>
-  <line x1="0" y1="10" x2="220" y2="10" stroke="black" />
-  <text y="30" class="desc">${tea.type}, ${caffeine}</text>
-  <text y="48" class="desc">${serving}, steep ${tea.steepTime}, ${tea.temperature}</text>
-</g>`;
+  return (
+    <g transform={`translate(${props.position})`}>
+      <text transform={transform} class="name">
+        {name}
+      </text>
+      <line x1="0" y1="10" x2="220" y2="10" stroke="black" />
+      <text y="30" class="desc">
+        {tea.type}, {caffeine}
+      </text>
+      <text y="48" class="desc">
+        {serving}, steep {tea.steepTime}, {tea.temperature}
+      </text>
+    </g>
+  );
 }
 
 /**
@@ -31,10 +50,10 @@ function generateTeaGroup(tea: FormattedTeaDatabasePage, position: string) {
  * @param position Where to position the group in the parent SVG element.
  * @returns SVG group element containing one group per tea.
  */
-function generateDisplayGroup(
-  teaList: readonly FormattedTeaDatabasePage[],
-  position: `${number} ${number}`
-) {
+function TeaDisplayGroup(props: {
+  teaList: readonly FormattedTeaDatabasePage[];
+  position: TranslatePosition;
+}) {
   const positions = [
     "30 85",
     "30 180",
@@ -42,13 +61,15 @@ function generateDisplayGroup(
     "322 85",
     "322 180",
     "322 275",
-  ];
+  ] as const;
 
-  return `<g transform="translate(${position})">
-  ${teaList
-    .map((tea, index) => generateTeaGroup(tea, positions[index]))
-    .join("")}
-</g>`;
+  return (
+    <g transform={`translate(${props.position})`}>
+      {props.teaList.map((tea, index) => (
+        <TeaInfo tea={tea} position={positions[index]} />
+      ))}
+    </g>
+  );
 }
 
 /**
@@ -70,9 +91,12 @@ export async function generateSvg(
     new URL("../assets/cover.svg", import.meta.url)
   );
 
-  const topGroup = generateDisplayGroup(topDisplayTeas, "8 8");
-  const bottomGroup = generateDisplayGroup(bottomDisplayTeas, "8 360");
-  const groups = `<g id="tea">${[topGroup, bottomGroup].join("")}</g>`;
+  const groups: string = (
+    <g id="tea">
+      <TeaDisplayGroup teaList={topDisplayTeas} position="8 8" />
+      <TeaDisplayGroup teaList={bottomDisplayTeas} position="8 360" />
+    </g>
+  );
 
   const svg = svgTemplate.replace(`<g id="tea" />`, groups);
   if (svg === svgTemplate) {
