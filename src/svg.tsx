@@ -1,8 +1,5 @@
 import h from "vhtml";
-import {
-  CAFFEINE_LEVELS,
-  FormattedTeaDatabasePage,
-} from "./notion/format-page.ts";
+import { CAFFEINE_LEVELS, FormattedTeaDatabasePage } from "./notion/types.ts";
 
 /** String with x and y space separated values */
 type TranslatePosition = `${number} ${number}`;

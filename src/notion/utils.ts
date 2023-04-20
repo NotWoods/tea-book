@@ -26,6 +26,8 @@ export function assertType<
 
 /**
  * Converts an array of Notion rich text objects into a single string.
+ * @param richText Array of Notion rich text objects.
+ * @see https://developers.notion.com/reference/rich-text
  */
 export function plainText(richText: readonly { plain_text: string }[]) {
   return richText.map((text) => text.plain_text).join("");
@@ -33,6 +35,8 @@ export function plainText(richText: readonly { plain_text: string }[]) {
 
 /**
  * Extract the URL from a Notion file object.
+ * @param file Notion file object.
+ * @see https://developers.notion.com/reference/file-object
  */
 export function fileUrl(
   file:

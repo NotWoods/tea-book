@@ -7,7 +7,7 @@ import {
   fetchTeaDatabasePages,
   fetchTeaPageContent,
 } from "./notion/client.tsx";
-import type { FormattedTeaDatabasePage } from "./notion/format-page.ts";
+import type { FormattedTeaDatabasePage } from "./notion/types.ts";
 import { generateSvg } from "./svg.tsx";
 
 /**

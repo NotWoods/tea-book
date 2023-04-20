@@ -1,8 +1,5 @@
 import h from "vhtml";
-import {
-  CAFFEINE_LEVELS,
-  FormattedTeaDatabasePage,
-} from "./notion/format-page.ts";
+import { CAFFEINE_LEVELS, FormattedTeaDatabasePage } from "./notion/types.ts";
 
 /**
  * Nook e-readers only support the WGL character set,
