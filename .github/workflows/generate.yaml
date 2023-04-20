@@ -1,0 +1,52 @@
+name: Generate files
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v3
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.32
+
+      - name: Generate SVG and Markdown
+        run: deno run --allow-net=api.notion.com --allow-env=NOTION_TOKEN,NOTION_DB --allow-read --allow-write .\src\generate.ts
+        env:
+          NOTION_DB: 1043e8edb9094976af12a59f25e41286
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+
+      - name: Generate PNG
+        uses: docker://minidocks/inkscape:1
+        with:
+          args: >-
+            --export-type="png"
+            tea.svg
+
+      - name: Generate eBook
+        uses: docker://pandoc/core:3.0
+        with:
+          args: >-
+            tea-list.txt
+            -o tea.epub
+            --epub-title-page=false
+
+      - name: Upload generated artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: book
+          path: |
+            tea.epub
+            tea.png
