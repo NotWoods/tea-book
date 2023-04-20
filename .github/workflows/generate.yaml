@@ -23,7 +23,7 @@ jobs:
           deno-version: v1.32
 
       - name: Generate SVG and Markdown
-        run: deno run --allow-net=api.notion.com --allow-env=NOTION_TOKEN,NOTION_DB --allow-read --allow-write .\src\generate.ts
+        run: deno run --allow-net=api.notion.com --allow-env=NOTION_TOKEN,NOTION_DB --allow-read --allow-write ./src/generate.ts
         env:
           NOTION_DB: 1043e8edb9094976af12a59f25e41286
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
