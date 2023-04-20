@@ -1,12 +1,9 @@
+import h from "vhtml";
 import {
   CAFFEINE_LEVELS,
   FormattedTeaDatabasePage,
 } from "./notion/format-page.ts";
 
-const CAFFEINE_LEVEL_CHARACTER_MAP = {
-  "★": "●",
-  "☆": "○",
-};
 /**
  * Nook e-readers only support the WGL character set,
  * so we need to replace the stars with something else.
@@ -18,11 +15,7 @@ const CAFFEINE_LEVEL_CHARACTER_MAP = {
  * @returns The caffeine level with the characters replaced.
  */
 function changeCaffeineCharacters(level: string) {
-  return Object.entries(CAFFEINE_LEVEL_CHARACTER_MAP).reduce(
-    (formatted, [searchValue, replaceValue]) =>
-      formatted.replaceAll(searchValue, replaceValue),
-    level
-  );
+  return level.replaceAll("★", "●").replaceAll("☆", "○");
 }
 
 /**
@@ -34,36 +27,40 @@ export function generateTeaTableHtml(
   caption: string,
   teaList: readonly FormattedTeaDatabasePage[]
 ) {
-  return `<table>
-  <caption>${caption}</caption>
-  <thead>
-    <tr>
-      <th class="cell-caffeine">Caffeine</th>
-      <th class="cell-temperature">Temp</th>
-      <th class="cell-steep-time">Steep time</th>
-      <th class="cell-serving">Serving</th>
-      <th class="cell-type">Type</th>
-    </tr>
-  </thead>
-  <tbody>
-    ${teaList
-      .map(
-        (tea) => `<tr>
-      <th class="cell-name" colspan="5">
-        <a href="ch${tea.id}.xml">${tea.name}</a>
-      </th>
-    </tr>
-    <tr>
-      <td class="cell-caffeine">${changeCaffeineCharacters(tea.caffeine)}</td>
-      <td class="cell-temperature">${tea.temperature}</td>
-      <td class="cell-steep-time">${tea.steepTime}</td>
-      <td class="cell-serving">${tea.serving}</td>
-      <td class="cell-type">${tea.type}</td>
-    </tr>`
-      )
-      .join("")}
-  </tbody>
-</table>`;
+  return (
+    <table>
+      <caption>{caption}</caption>
+      <thead>
+        <tr>
+          <th class="cell-caffeine">Caffeine</th>
+          <th class="cell-temperature">Temp</th>
+          <th class="cell-steep-time">Steep time</th>
+          <th class="cell-serving">Serving</th>
+          <th class="cell-type">Type</th>
+        </tr>
+      </thead>
+      <tbody>
+        {teaList.map((tea) => (
+          <>
+            <tr>
+              <th class="cell-name" colspan={5}>
+                <a href="ch${tea.id}.xml">{tea.name}</a>
+              </th>
+            </tr>
+            <tr>
+              <td class="cell-caffeine">
+                {changeCaffeineCharacters(tea.caffeine)}
+              </td>
+              <td class="cell-temperature">{tea.temperature}</td>
+              <td class="cell-steep-time">{tea.steepTime}</td>
+              <td class="cell-serving">{tea.serving}</td>
+              <td class="cell-type">{tea.type}</td>
+            </tr>
+          </>
+        ))}
+      </tbody>
+    </table>
+  );
 }
 
 const listFormat = new Intl.ListFormat("en", {

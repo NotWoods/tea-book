@@ -9,7 +9,10 @@
     "https://deno.land/std@0.178.0/collections/without_all.ts": "a89f5da0b5830defed4f59666e188df411d8fece35a5f6ca69be6ca71a95c185",
     "https://deno.land/std@0.178.0/datetime/_common.ts": "f5c1cb784c616151a3d8198a4ab29f65b7fe5c20a105d8979bde9558c7b52910",
     "https://deno.land/std@0.178.0/datetime/format.ts": "416807ca1971c5432bfa7d1e429b7c6360cb81fee598e8510dde6e7b0e819a57",
-    "https://deno.land/std@0.178.0/dotenv/mod.ts": "8dcbc8a40b896a0bf094582aaeadbfc76d3528872faf2efc0302beb1d2f6afd0"
+    "https://deno.land/std@0.178.0/dotenv/mod.ts": "8dcbc8a40b896a0bf094582aaeadbfc76d3528872faf2efc0302beb1d2f6afd0",
+    "https://esm.sh/v116/@types/vhtml@2.2.4/index.d.ts": "0d76ab7cb3e143c275360e388f0ccbda71a5f057773b808dccc83b9f4766d5e5",
+    "https://esm.sh/v116/vhtml@2.2.0/deno/vhtml.mjs": "57e2af656dc6415cfd43ff32bffc47f6f325e64de375ef99caeae1ac6010eaed",
+    "https://esm.sh/vhtml@2.2.0": "b82a2f3d1c41abc442c708301583cd3df96112b6d4ee2b63db50bca31bfe8f9b"
   },
   "npm": {
     "specifiers": {

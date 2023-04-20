@@ -1,73 +1,32 @@
-import {
-  Client,
-  isFullBlock,
-  isFullPage,
-  iteratePaginatedAPI,
-} from "npm:@notionhq/client";
 import { format as formatDate } from "std/datetime/format.ts";
-import { load } from "std/dotenv/mod.ts";
 import {
   generateChapterPropertiesMarkdown,
   generateTeaTableHtml,
-} from "./book.ts";
+} from "./book.tsx";
 import {
-  formatTeaDatabasePage,
-  FormattedTeaDatabasePage,
-} from "./notion/format-page.ts";
-import { fileUrl, plainText } from "./notion/utils.ts";
+  fetchTeaDatabasePages,
+  fetchTeaPageContent,
+} from "./notion/client.tsx";
+import type { FormattedTeaDatabasePage } from "./notion/format-page.ts";
 import { generateSvg } from "./svg.tsx";
-
-const env = await load({
-  restrictEnvAccessTo: ["NOTION_TOKEN", "NOTION_DB"],
-  defaultsPath: "",
-});
-const notion = new Client({ auth: env["NOTION_TOKEN"] });
 
 /**
  * Downloads all the teas from Notion and formats them into lists.
  * @returns A list of teas, grouped by location.
  */
 async function getTeaList() {
-  const teaListIterator = iteratePaginatedAPI(notion.databases.query, {
-    database_id: env["NOTION_DB"],
-    sorts: [
-      {
-        property: "Location",
-        direction: "ascending",
-      },
-    ],
-    filter: {
-      property: "Location",
-      multi_select: {
-        is_not_empty: true,
-      },
-    },
-  });
-
   const topDisplayTeas: FormattedTeaDatabasePage[] = [];
   const bottomDisplayTeas: FormattedTeaDatabasePage[] = [];
   const pantryTeas: FormattedTeaDatabasePage[] = [];
-  for await (const page of teaListIterator) {
-    if (!isFullPage(page)) {
-      continue;
-    }
 
-    if (page.properties.Location.type !== "multi_select") {
-      throw new Error(
-        `Expected Location to be a multi_select, got ${page.properties.Location.type}`
-      );
-    }
-    const formatted = formatTeaDatabasePage(page);
-
-    const locations = new Set(
-      page.properties.Location.multi_select.map(({ name }) => name)
-    );
+  for (const page of await fetchTeaDatabasePages()) {
+    const locations = new Set(page.location);
     if (locations.has("Display (top)")) {
-      topDisplayTeas.push(formatted);
+      topDisplayTeas.push(page);
     } else if (locations.has("Display (bottom)")) {
-      bottomDisplayTeas.push(formatted);
+      bottomDisplayTeas.push(page);
     } else {
-      pantryTeas.push(formatted);
+      pantryTeas.push(page);
     }
   }
 
@@ -83,29 +42,7 @@ async function getTeaList() {
  * Chapters are signified by a heading 1 (`#`).
  */
 async function generateChapterMarkdown(tea: FormattedTeaDatabasePage) {
-  const blocksIterator = iteratePaginatedAPI(notion.blocks.children.list, {
-    block_id: tea.id,
-  });
-
-  const content: string[] = [];
-  for await (const block of blocksIterator) {
-    if (!isFullBlock(block)) {
-      continue;
-    }
-
-    switch (block.type) {
-      case "paragraph":
-        content.push(plainText(block.paragraph.rich_text));
-        break;
-      case "image": {
-        const url = fileUrl(block.image);
-        content.push(`<img src="${url}" height="200" />`);
-        break;
-      }
-      default:
-        throw new Error(`Unexpected block type: ${block.type} in ${tea.name}`);
-    }
-  }
+  const content: string[] = await fetchTeaPageContent(tea);
 
   return `${generateChapterPropertiesMarkdown(tea)}
 
@@ -117,8 +54,10 @@ ${content.join("\n\n")}
 const { topDisplayTeas, bottomDisplayTeas, pantryTeas } = await getTeaList();
 
 // Generate the cover image SVG
-await generateSvg(topDisplayTeas, bottomDisplayTeas);
+const svg = await generateSvg(topDisplayTeas, bottomDisplayTeas);
+await Deno.writeTextFile("tea.svg", svg);
 
+// Generate the markdown file that represents the ebook
 const book = `---
 title: Tea
 creator: Tiger x Daphne

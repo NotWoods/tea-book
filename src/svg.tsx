@@ -23,9 +23,9 @@ function TeaInfo(props: {
   const name = tea.name;
 
   // Use condensed font if name is too long
-  let transform = "";
+  let transform: string | undefined = undefined;
   if (name.length > 20) {
-    transform += "scale(0.9 1)";
+    transform = "scale(0.9 1)";
   }
 
   return (
@@ -73,7 +73,7 @@ function TeaDisplayGroup(props: {
 }
 
 /**
- * Writes an SVG file to the current directory to use as an ebook cover.
+ * Creates an SVG file to the current directory to use as an ebook cover.
  * The image contains a summary of the given tea information.
  *
  * The cover is generated from a template SVG file.
@@ -87,6 +87,7 @@ export async function generateSvg(
   topDisplayTeas: readonly FormattedTeaDatabasePage[],
   bottomDisplayTeas: readonly FormattedTeaDatabasePage[]
 ) {
+  // Open template file
   const svgTemplate = await Deno.readTextFile(
     new URL("../assets/cover.svg", import.meta.url)
   );
@@ -103,5 +104,5 @@ export async function generateSvg(
     throw new Error("Could not find tea group marker in template");
   }
 
-  await Deno.writeTextFile("tea.svg", svg);
+  return svg;
 }

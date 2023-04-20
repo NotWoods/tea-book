@@ -9,6 +9,7 @@
     "generate": "deno run --allow-net=api.notion.com --allow-env=NOTION_TOKEN,NOTION_DB --allow-read --allow-write ./src/generate.ts"
   },
   "compilerOptions": {
-    "jsxFactory": "h"
+    "jsxFactory": "h",
+    "jsxFragmentFactory": "undefined"
   }
 }
