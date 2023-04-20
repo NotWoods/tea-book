@@ -22,7 +22,7 @@ function changeCaffeineCharacters(level: string) {
  */
 export function generateTeaTableHtml(
   caption: string,
-  teaList: readonly FormattedTeaDatabasePage[]
+  teaList: readonly FormattedTeaDatabasePage[],
 ) {
   return (
     <table>
@@ -69,7 +69,7 @@ const listFormat = new Intl.ListFormat("en", {
  * This should be displayed above additional description text.
  */
 export function generateChapterPropertiesMarkdown(
-  tea: FormattedTeaDatabasePage
+  tea: FormattedTeaDatabasePage,
 ) {
   return `
 # ${tea.name}

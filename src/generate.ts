@@ -73,12 +73,14 @@ ${generateTeaTableHtml("Display (bottom)", bottomDisplayTeas)}
 
 ${generateTeaTableHtml("Pantry", pantryTeas)}
 
-${(
-  await Promise.all(
-    [...topDisplayTeas, ...bottomDisplayTeas, ...pantryTeas].map(
-      generateChapterMarkdown
+${
+  (
+    await Promise.all(
+      [...topDisplayTeas, ...bottomDisplayTeas, ...pantryTeas].map(
+        generateChapterMarkdown,
+      ),
     )
-  )
-).join("\n\n")}`;
+  ).join("\n\n")
+}`;
 // Write the book file for pandoc
 await Deno.writeTextFile("tea-list.txt", book);

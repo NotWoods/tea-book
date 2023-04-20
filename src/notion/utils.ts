@@ -11,15 +11,15 @@
  */
 export function assertType<
   NotionObject extends { type: string },
-  Type extends NotionObject["type"]
+  Type extends NotionObject["type"],
 >(
   object: NotionObject,
-  type: Type
+  type: Type,
 ): asserts object is NotionObject & { type: Type } {
   if (object.type !== type) {
     const stringified = JSON.stringify(object, null, 2);
     throw new Error(
-      `Expected type ${type} but got ${object.type}\n ${stringified}`
+      `Expected type ${type} but got ${object.type}\n ${stringified}`,
     );
   }
 }
@@ -41,7 +41,7 @@ export function plainText(richText: readonly { plain_text: string }[]) {
 export function fileUrl(
   file:
     | { type: "external"; external: { url: string } }
-    | { type: "file"; file: { url: string } }
+    | { type: "file"; file: { url: string } },
 ) {
   switch (file.type) {
     case "external":

@@ -82,11 +82,11 @@ function TeaDisplayGroup(props: {
  */
 export async function generateSvg(
   topDisplayTeas: readonly FormattedTeaDatabasePage[],
-  bottomDisplayTeas: readonly FormattedTeaDatabasePage[]
+  bottomDisplayTeas: readonly FormattedTeaDatabasePage[],
 ) {
   // Open template file
   const svgTemplate = await Deno.readTextFile(
-    new URL("../assets/cover.svg", import.meta.url)
+    new URL("../assets/cover.svg", import.meta.url),
   );
 
   const groups: string = (

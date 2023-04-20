@@ -1,6 +1,18 @@
 {
-    "deno.enable": true,
-    "files.associations": {
-        "*.txt": "markdown"
-    },
+  "deno.enable": true,
+  "files.associations": {
+    "*.txt": "markdown"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "denoland.vscode-deno"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "denoland.vscode-deno"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[markdown]": {
+    "editor.defaultFormatter": "denoland.vscode-deno"
+  }
 }
