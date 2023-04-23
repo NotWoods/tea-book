@@ -69,12 +69,15 @@ function TeaDisplayGroup(props: {
   );
 }
 
+/** Matches <slot /> and <slot/> */
+const SLOT_REGEX = /<slot\s*\/>/;
+
 /**
  * Creates an SVG file to the current directory to use as an ebook cover.
  * The image contains a summary of the given tea information.
  *
  * The cover is generated from a template SVG file.
- * The template must contain the slot `<g id="tea" />` where the tea information will be inserted.
+ * The template must contain the element `<slot />` where the tea information will be inserted.
  *
  * @param topDisplayTeas Items displayed on the top half of the cover.
  * @param bottomDisplayTeas Items displayed on the bottom half of the cover.
@@ -96,7 +99,7 @@ export async function generateSvg(
     </g>
   );
 
-  const svg = svgTemplate.replace(`<g id="tea" />`, groups);
+  const svg = svgTemplate.replace(SLOT_REGEX, groups);
   if (svg === svgTemplate) {
     throw new Error("Could not find tea group marker in template");
   }
