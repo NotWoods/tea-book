@@ -101,7 +101,7 @@ export async function generateSvg(
 
   const svg = svgTemplate.replace(SLOT_REGEX, groups);
   if (svg === svgTemplate) {
-    throw new Error("Could not find tea group marker in template");
+    throw new Error("Could not find <slot /> marker element in template");
   }
 
   return svg;
