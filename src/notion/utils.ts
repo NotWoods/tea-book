@@ -6,7 +6,7 @@
  * assertType({ type: 'foo' }, 'foo') // passes
  * assertType({ type: 'foo' }, 'bar') // throws
  *
- * @param property The object to check.
+ * @param object The object to check.
  * @param type The expected type.
  */
 export function assertType<

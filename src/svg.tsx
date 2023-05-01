@@ -27,13 +27,16 @@ function TeaInfo(props: {
 
   return (
     <g transform={`translate(${props.position})`}>
+      {/* Name of the tea */}
       <text transform={transform} class="name">
         {name}
       </text>
       <line x1="0" y1="10" x2="220" y2="10" stroke="black" />
+      {/* Tea type (ie black tea, green tea) and caffeine level */}
       <text y="30" class="desc">
         {tea.type}, {caffeine}
       </text>
+      {/* Serving size, how long to steep the tea for, and what temperature water to use */}
       <text y="48" class="desc">
         {serving}, steep {tea.steepTime}, {tea.temperature}
       </text>
@@ -69,15 +72,15 @@ function TeaDisplayGroup(props: {
   );
 }
 
-/** Matches <slot /> and <slot/> */
-const SLOT_REGEX = /<slot\s*\/>/;
+/** Matches </svg> */
+const SVG_CLOSING_TAG = /<\/svg\s*>/;
 
 /**
  * Creates an SVG file to the current directory to use as an ebook cover.
  * The image contains a summary of the given tea information.
  *
  * The cover is generated from a template SVG file.
- * The template must contain the element `<slot />` where the tea information will be inserted.
+ * The template must contain a closing `</svg>` tag where the tea information will be inserted.
  *
  * @param topDisplayTeas Items displayed on the top half of the cover.
  * @param bottomDisplayTeas Items displayed on the bottom half of the cover.
@@ -92,16 +95,16 @@ export async function generateSvg(
     new URL("../assets/cover.svg", import.meta.url),
   );
 
-  const groups: string = (
+  const generatedText: string = (
     <g id="tea">
       <TeaDisplayGroup teaList={topDisplayTeas} position="8 8" />
       <TeaDisplayGroup teaList={bottomDisplayTeas} position="8 360" />
     </g>
   );
 
-  const svg = svgTemplate.replace(SLOT_REGEX, groups);
+  const svg = svgTemplate.replace(SVG_CLOSING_TAG, `${generatedText}</svg>`);
   if (svg === svgTemplate) {
-    throw new Error("Could not find <slot /> marker element in template");
+    throw new Error("Could not find </svg> tag in template");
   }
 
   return svg;
