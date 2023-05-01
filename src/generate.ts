@@ -67,11 +67,23 @@ cover-image: tea.png
 css: assets/epub.css
 ...
 
-${generateTeaTableHtml("Display (top)", topDisplayTeas)}
+${generateTeaTableHtml("Display (top)", topDisplayTeas, 1)}
 
-${generateTeaTableHtml("Display (bottom)", bottomDisplayTeas)}
+${
+  generateTeaTableHtml(
+    "Display (bottom)",
+    bottomDisplayTeas,
+    topDisplayTeas.length + 1,
+  )
+}
 
-${generateTeaTableHtml("Pantry", pantryTeas)}
+${
+  generateTeaTableHtml(
+    "Pantry",
+    pantryTeas,
+    topDisplayTeas.length + bottomDisplayTeas.length + 1,
+  )
+}
 
 ${
   (

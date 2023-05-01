@@ -23,6 +23,7 @@ function changeCaffeineCharacters(level: string) {
 export function generateTeaTableHtml(
   caption: string,
   teaList: readonly FormattedTeaDatabasePage[],
+  startingIndex: number,
 ) {
   return (
     <table>
@@ -37,24 +38,29 @@ export function generateTeaTableHtml(
         </tr>
       </thead>
       <tbody>
-        {teaList.map((tea) => (
-          <>
-            <tr>
-              <th class="cell-name" colspan={5}>
-                <a href="ch${tea.id}.xml">{tea.name}</a>
-              </th>
-            </tr>
-            <tr>
-              <td class="cell-caffeine">
-                {changeCaffeineCharacters(tea.caffeine)}
-              </td>
-              <td class="cell-temperature">{tea.temperature}</td>
-              <td class="cell-steep-time">{tea.steepTime}</td>
-              <td class="cell-serving">{tea.serving}</td>
-              <td class="cell-type">{tea.type}</td>
-            </tr>
-          </>
-        ))}
+        {teaList.map((tea, index) => {
+          const chapterLink = `ch${
+            String(index + startingIndex + 1).padStart(3, "0")
+          }.xhtml`;
+          return (
+            <>
+              <tr>
+                <th class="cell-name" colspan={5}>
+                  <a href={chapterLink}>{tea.name}</a>
+                </th>
+              </tr>
+              <tr>
+                <td class="cell-caffeine">
+                  {changeCaffeineCharacters(tea.caffeine)}
+                </td>
+                <td class="cell-temperature">{tea.temperature}</td>
+                <td class="cell-steep-time">{tea.steepTime}</td>
+                <td class="cell-serving">{tea.serving}</td>
+                <td class="cell-type">{tea.type}</td>
+              </tr>
+            </>
+          );
+        })}
       </tbody>
     </table>
   );
@@ -72,7 +78,7 @@ export function generateChapterPropertiesMarkdown(
   tea: FormattedTeaDatabasePage,
 ) {
   return `
-# ${tea.name}
+# ${tea.name} {#ch${tea.id}}
 
 - ${tea.type}
 - ${changeCaffeineCharacters(tea.caffeine)} (${
