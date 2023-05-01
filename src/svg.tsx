@@ -6,19 +6,19 @@ type TranslatePosition = `${number} ${number}`;
 
 /**
  * Create a group of SVG text that summarizes the given tea information.
- * @param tea Tea information to use.
- * @param position Where to position the group in the parent SVG element.
+ * @param props.tea Tea information to use.
+ * @param props.position Where to position the group in the parent SVG element.
  * @returns SVG group element containing the tea information.
  */
 function TeaInfo(props: {
   tea: FormattedTeaDatabasePage;
   position: TranslatePosition;
 }) {
-  const { tea } = props;
+  const { tea, position } = props;
   const serving = tea.serving.replace(" / ", "/");
   const caffeine = CAFFEINE_LEVELS[tea.caffeine] ?? "";
-  const name = tea.name;
 
+  const name = tea.name;
   // Use condensed font if name is too long
   let transform: string | undefined = undefined;
   if (name.length > 20) {
@@ -26,7 +26,7 @@ function TeaInfo(props: {
   }
 
   return (
-    <g transform={`translate(${props.position})`}>
+    <g transform={`translate(${position})`}>
       {/* Name of the tea */}
       <text transform={transform} class="name">
         {name}
@@ -46,8 +46,8 @@ function TeaInfo(props: {
 
 /**
  * Create a set of SVG groups that summarizes all the given tea information.
- * @param teaList List of tea information to use. Should be 6 items or less.
- * @param position Where to position the group in the parent SVG element.
+ * @param props.teaList List of tea information to use. Should be 6 items or less.
+ * @param props.position Where to position the group in the parent SVG element.
  * @returns SVG group element containing one group per tea.
  */
 function TeaDisplayGroup(props: {
