@@ -40,7 +40,7 @@ which is then converted by [Pandoc](https://pandoc.org/) into an ePub file named
 the content by making a copy with a `.zip` suffix instead of a `.epub` suffix.
 
 ```powershell
-deno run --allow-net=api.notion.com --allow-env=NOTION_TOKEN,NOTION_DB --allow-read --allow-write .\src\generate.ts
+deno run --allow-net=api.notion.com --allow-env --allow-read --allow-write .\src\generate.ts
 pandoc tea-list.txt -o tea.epub --epub-title-page=false
 cp tea.epub tea.zip
 ```

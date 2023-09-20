@@ -1,25 +1,19 @@
 {
-  "version": "2",
-  "remote": {
-    "https://deno.land/std@0.147.0/dotenv/mod.ts": "7b24a0e2d6daf1b5ab167547161766949e0cb7d6e3cf5c49783753aec72e4440",
-    "https://deno.land/std@0.147.0/dotenv/util.ts": "6cc392f087577a26a27f0463f77cc0c31a390aa055917099935b36eb2454592d",
-    "https://deno.land/std@0.177.0/datetime/_common.ts": "f5c1cb784c616151a3d8198a4ab29f65b7fe5c20a105d8979bde9558c7b52910",
-    "https://deno.land/std@0.177.0/datetime/format.ts": "416807ca1971c5432bfa7d1e429b7c6360cb81fee598e8510dde6e7b0e819a57",
-    "https://deno.land/std@0.178.0/collections/filter_values.ts": "5b9feaf17b9a6e5ffccdd36cf6f38fa4ffa94cff2602d381c2ad0c2a97929652",
-    "https://deno.land/std@0.178.0/collections/without_all.ts": "a89f5da0b5830defed4f59666e188df411d8fece35a5f6ca69be6ca71a95c185",
-    "https://deno.land/std@0.178.0/datetime/_common.ts": "f5c1cb784c616151a3d8198a4ab29f65b7fe5c20a105d8979bde9558c7b52910",
-    "https://deno.land/std@0.178.0/datetime/format.ts": "416807ca1971c5432bfa7d1e429b7c6360cb81fee598e8510dde6e7b0e819a57",
-    "https://deno.land/std@0.178.0/dotenv/mod.ts": "8dcbc8a40b896a0bf094582aaeadbfc76d3528872faf2efc0302beb1d2f6afd0",
-    "https://esm.sh/v116/@types/vhtml@2.2.4/index.d.ts": "0d76ab7cb3e143c275360e388f0ccbda71a5f057773b808dccc83b9f4766d5e5",
-    "https://esm.sh/v116/vhtml@2.2.0/deno/vhtml.mjs": "57e2af656dc6415cfd43ff32bffc47f6f325e64de375ef99caeae1ac6010eaed",
-    "https://esm.sh/vhtml@2.2.0": "b82a2f3d1c41abc442c708301583cd3df96112b6d4ee2b63db50bca31bfe8f9b"
-  },
-  "npm": {
+  "version": "3",
+  "packages": {
     "specifiers": {
-      "@notionhq/client": "@notionhq/client@2.2.3",
-      "@notionhq/client@2.2.3": "@notionhq/client@2.2.3"
+      "npm:@notionhq/client": "npm:@notionhq/client@2.2.3",
+      "npm:@notionhq/client@2.2.13": "npm:@notionhq/client@2.2.13",
+      "npm:@notionhq/client@2.2.3": "npm:@notionhq/client@2.2.3"
     },
-    "packages": {
+    "npm": {
+      "@notionhq/client@2.2.13": {
+        "integrity": "sha512-wJpEl30QUSy2K3/Q2c2knNiZlLXJ17JnQgaIiFbN68IMJy+2TE9fXLxvV1N/cMVs2+SpteAa6PlyrUgfGdlmDg==",
+        "dependencies": {
+          "@types/node-fetch": "@types/node-fetch@2.6.2",
+          "node-fetch": "node-fetch@2.6.9"
+        }
+      },
       "@notionhq/client@2.2.3": {
         "integrity": "sha512-ZqUzY0iRg/LIrwS+wzz/6osSB2nxIpmqdAtdUwzpcimc9Jlu1j85FeYdaU26Shr193CFrl2TLFeKqpk/APRQ4g==",
         "dependencies": {
@@ -92,5 +86,22 @@
         }
       }
     }
+  },
+  "remote": {
+    "https://deno.land/std@0.147.0/dotenv/mod.ts": "7b24a0e2d6daf1b5ab167547161766949e0cb7d6e3cf5c49783753aec72e4440",
+    "https://deno.land/std@0.147.0/dotenv/util.ts": "6cc392f087577a26a27f0463f77cc0c31a390aa055917099935b36eb2454592d",
+    "https://deno.land/std@0.177.0/datetime/_common.ts": "f5c1cb784c616151a3d8198a4ab29f65b7fe5c20a105d8979bde9558c7b52910",
+    "https://deno.land/std@0.177.0/datetime/format.ts": "416807ca1971c5432bfa7d1e429b7c6360cb81fee598e8510dde6e7b0e819a57",
+    "https://deno.land/std@0.178.0/collections/filter_values.ts": "5b9feaf17b9a6e5ffccdd36cf6f38fa4ffa94cff2602d381c2ad0c2a97929652",
+    "https://deno.land/std@0.178.0/collections/without_all.ts": "a89f5da0b5830defed4f59666e188df411d8fece35a5f6ca69be6ca71a95c185",
+    "https://deno.land/std@0.178.0/datetime/_common.ts": "f5c1cb784c616151a3d8198a4ab29f65b7fe5c20a105d8979bde9558c7b52910",
+    "https://deno.land/std@0.178.0/datetime/format.ts": "416807ca1971c5432bfa7d1e429b7c6360cb81fee598e8510dde6e7b0e819a57",
+    "https://deno.land/std@0.178.0/dotenv/mod.ts": "8dcbc8a40b896a0bf094582aaeadbfc76d3528872faf2efc0302beb1d2f6afd0",
+    "https://deno.land/std@0.202.0/datetime/_common.ts": "f5c1cb784c616151a3d8198a4ab29f65b7fe5c20a105d8979bde9558c7b52910",
+    "https://deno.land/std@0.202.0/datetime/format.ts": "2d7a430ca9571e054ac181dcb950faf9ac23445e081dcb230ca37134e6eaad0c",
+    "https://deno.land/std@0.202.0/dotenv/mod.ts": "1da8c6d0e7f7d8a5c2b19400b763bc11739df24acec235dda7ea2cfd3d300057",
+    "https://esm.sh/v116/@types/vhtml@2.2.4/index.d.ts": "0d76ab7cb3e143c275360e388f0ccbda71a5f057773b808dccc83b9f4766d5e5",
+    "https://esm.sh/v116/vhtml@2.2.0/deno/vhtml.mjs": "57e2af656dc6415cfd43ff32bffc47f6f325e64de375ef99caeae1ac6010eaed",
+    "https://esm.sh/vhtml@2.2.0": "b82a2f3d1c41abc442c708301583cd3df96112b6d4ee2b63db50bca31bfe8f9b"
   }
 }

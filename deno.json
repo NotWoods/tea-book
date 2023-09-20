@@ -1,11 +1,11 @@
 {
   "imports": {
-    "std/": "https://deno.land/std@0.178.0/",
-    "@notionhq/client": "npm:@notionhq/client@2.2.3",
+    "std/": "https://deno.land/std@0.202.0/",
+    "@notionhq/client": "npm:@notionhq/client@2.2.13",
     "vhtml": "https://esm.sh/vhtml@2.2.0"
   },
   "tasks": {
-    "generate": "deno run --allow-net=api.notion.com --allow-env=NOTION_TOKEN,NOTION_DB --allow-read --allow-write ./src/generate.ts"
+    "generate": "deno run --allow-net=api.notion.com --allow-env=NOTION_TOKEN,NOTION_DB,NODE_EXTRA_CA_CERTS --allow-read --allow-write=. ./src/generate.ts"
   },
   "compilerOptions": {
     "jsxFactory": "h",
