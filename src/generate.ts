@@ -10,11 +10,17 @@ import {
 import type { FormattedTeaDatabasePage } from "./notion/types.ts";
 import { generateSvg } from "./svg.tsx";
 
+interface TeaCollection {
+  topDisplayTeas: readonly FormattedTeaDatabasePage[];
+  bottomDisplayTeas: readonly FormattedTeaDatabasePage[];
+  pantryTeas: readonly FormattedTeaDatabasePage[];
+}
+
 /**
  * Downloads all the teas from Notion and formats them into lists.
  * @returns A list of teas, grouped by location.
  */
-async function getTeaList() {
+async function getTeaCollection(): Promise<TeaCollection> {
   const topDisplayTeas: FormattedTeaDatabasePage[] = [];
   const bottomDisplayTeas: FormattedTeaDatabasePage[] = [];
   const pantryTeas: FormattedTeaDatabasePage[] = [];
@@ -38,61 +44,79 @@ async function getTeaList() {
 }
 
 /**
- * Generate markdown chapter content for a specific tea.
+ * Generate markdown chapter content for each specific tea.
  * Chapters are signified by a heading 1 (`#`).
  */
-async function generateChapterMarkdown(tea: FormattedTeaDatabasePage) {
-  const content: string[] = await fetchTeaPageContent(tea);
+async function* generateChapterMarkdown(
+  teas: readonly FormattedTeaDatabasePage[],
+) {
+  const pageContentArray = teas.map(fetchTeaPageContent);
 
-  return `${generateChapterPropertiesMarkdown(tea)}
+  for (const [index, tea] of teas.entries()) {
+    const content: string[] = await pageContentArray[index];
+
+    yield "\n\n";
+    yield `${generateChapterPropertiesMarkdown(tea)}
 
 ${content.length > 0 ? "---\n" : ""}
 ${content.join("\n\n")}
 `;
+  }
 }
 
-const { topDisplayTeas, bottomDisplayTeas, pantryTeas } = await getTeaList();
+async function writeTextFile(input: AsyncIterable<string>, fileName: string) {
+  const file = await Deno.open(fileName, { write: true, create: true });
+  await ReadableStream.from(input)
+    .pipeThrough(new TextEncoderStream())
+    .pipeTo(file.writable);
+}
 
-// Generate the cover image SVG
-const svg = await generateSvg(topDisplayTeas, bottomDisplayTeas);
-await Deno.writeTextFile("tea.svg", svg);
-
-// Generate the markdown file that represents the ebook
-const book = `---
+/**
+ * Generate the markdown file that represents the ebook.
+ */
+async function* generateBookMarkdown(
+  { topDisplayTeas, bottomDisplayTeas, pantryTeas }: TeaCollection,
+): AsyncIterableIterator<string> {
+  // YAML frontmatter
+  yield `---
 title: Tea
 creator: Tiger x Daphne
 date: ${formatDate(new Date(), "yyyy-MM-dd")}
 lang: en-US
 cover-image: tea.png
 css: assets/epub.css
-...
+...`;
 
-${generateTeaTableHtml("Display (top)", topDisplayTeas, 1)}
+  yield "\n\n";
+  yield* generateTeaTableHtml("Display (top)", topDisplayTeas, 1);
 
-${
-  generateTeaTableHtml(
+  yield "\n\n";
+  yield* generateTeaTableHtml(
     "Display (bottom)",
     bottomDisplayTeas,
     topDisplayTeas.length + 1,
-  )
-}
+  );
 
-${
-  generateTeaTableHtml(
+  yield "\n\n";
+  yield* generateTeaTableHtml(
     "Pantry",
     pantryTeas,
     topDisplayTeas.length + bottomDisplayTeas.length + 1,
-  )
+  );
+
+  yield* generateChapterMarkdown([
+    ...topDisplayTeas,
+    ...bottomDisplayTeas,
+    ...pantryTeas,
+  ]);
 }
 
-${
-  (
-    await Promise.all(
-      [...topDisplayTeas, ...bottomDisplayTeas, ...pantryTeas].map(
-        generateChapterMarkdown,
-      ),
-    )
-  ).join("\n\n")
-}`;
+const teaCollection = await getTeaCollection();
+const { topDisplayTeas, bottomDisplayTeas } = teaCollection;
+
+// Generate the cover image SVG
+const svg = await generateSvg(topDisplayTeas, bottomDisplayTeas);
+await Deno.writeTextFile("tea.svg", svg);
+
 // Write the book file for pandoc
-await Deno.writeTextFile("tea-list.txt", book);
+writeTextFile(generateBookMarkdown(teaCollection), "tea-list.txt");

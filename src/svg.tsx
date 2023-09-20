@@ -95,6 +95,13 @@ export async function generateSvg(
     new URL("../assets/cover.svg", import.meta.url),
   );
 
+  const closingTagMatch = SVG_CLOSING_TAG.exec(svgTemplate);
+  if (!closingTagMatch) {
+    throw new Error("Could not find </svg> tag in template");
+  }
+  const templatePrefix = svgTemplate.slice(0, closingTagMatch.index);
+  const templateSuffix = svgTemplate.slice(closingTagMatch.index);
+
   const generatedText: string = (
     <g id="tea">
       <TeaDisplayGroup teaList={topDisplayTeas} position="8 8" />
@@ -102,10 +109,6 @@ export async function generateSvg(
     </g>
   );
 
-  const svg = svgTemplate.replace(SVG_CLOSING_TAG, `${generatedText}</svg>`);
-  if (svg === svgTemplate) {
-    throw new Error("Could not find </svg> tag in template");
-  }
-
-  return svg;
+  // Insert the generated content just before the closing </svg> tag
+  return templatePrefix + generatedText + templateSuffix;
 }

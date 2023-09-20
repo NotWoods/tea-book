@@ -1,7 +1,7 @@
 {
   "imports": {
     "std/": "https://deno.land/std@0.202.0/",
-    "@notionhq/client": "npm:@notionhq/client@2.2.13",
+    "@notionhq/client": "npm:@notionhq/client@2.2.3",
     "vhtml": "https://esm.sh/vhtml@2.2.0"
   },
   "tasks": {

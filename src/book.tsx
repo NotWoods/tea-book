@@ -17,14 +17,17 @@ function changeCaffeineCharacters(level: string) {
 
 /**
  * Creates an HTML table to display the given tea information.
- * @param caption The caption to display above the table.
- * @param teaList List of tea information to use. Each item will be a row in the table.
+ * @param props.caption The caption to display above the table.
+ * @param props.teaList List of tea information to use. Each item will be a row in the table.
  */
-export function generateTeaTableHtml(
-  caption: string,
-  teaList: readonly FormattedTeaDatabasePage[],
-  startingIndex: number,
+export function TeaTable(
+  props: {
+    caption: string;
+    teaList: readonly FormattedTeaDatabasePage[];
+    startingIndex: number;
+  },
 ) {
+  const { caption, teaList, startingIndex } = props;
   return (
     <table>
       <caption>{caption}</caption>
@@ -64,6 +67,19 @@ export function generateTeaTableHtml(
       </tbody>
     </table>
   );
+}
+
+/**
+ * Creates an HTML table to display the given tea information.
+ * @param caption The caption to display above the table.
+ * @param teaList List of tea information to use. Each item will be a row in the table.
+ */
+export function generateTeaTableHtml(
+  caption: string,
+  teaList: readonly FormattedTeaDatabasePage[],
+  startingIndex: number,
+) {
+  return <TeaTable caption={caption} teaList={teaList} startingIndex={startingIndex} />;
 }
 
 const listFormat = new Intl.ListFormat("en", {
