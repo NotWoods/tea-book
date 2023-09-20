@@ -79,7 +79,13 @@ export function generateTeaTableHtml(
   teaList: readonly FormattedTeaDatabasePage[],
   startingIndex: number,
 ) {
-  return <TeaTable caption={caption} teaList={teaList} startingIndex={startingIndex} />;
+  return (
+    <TeaTable
+      caption={caption}
+      teaList={teaList}
+      startingIndex={startingIndex}
+    />
+  );
 }
 
 const listFormat = new Intl.ListFormat("en", {

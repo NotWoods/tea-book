@@ -93,7 +93,7 @@ export async function generateSvgCover(
     new URL("../assets/cover.svg", import.meta.url),
   );
 
-  const closingTagIndex = svgTemplate.lastIndexOf('</svg');
+  const closingTagIndex = svgTemplate.lastIndexOf("</svg");
   if (!closingTagIndex) {
     throw new Error("Could not find </svg> tag in template");
   }
