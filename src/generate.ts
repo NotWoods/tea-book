@@ -8,7 +8,7 @@ import {
   fetchTeaPageContent,
 } from "./notion/client.tsx";
 import type { FormattedTeaDatabasePage } from "./notion/types.ts";
-import { generateSvg } from "./svg.tsx";
+import { generateSvgCover } from "./cover.tsx";
 
 interface TeaCollection {
   topDisplayTeas: readonly FormattedTeaDatabasePage[];
@@ -115,7 +115,7 @@ const teaCollection = await getTeaCollection();
 const { topDisplayTeas, bottomDisplayTeas } = teaCollection;
 
 // Generate the cover image SVG
-const svg = await generateSvg(topDisplayTeas, bottomDisplayTeas);
+const svg = await generateSvgCover(topDisplayTeas, bottomDisplayTeas);
 await Deno.writeTextFile("tea.svg", svg);
 
 // Write the book file for pandoc

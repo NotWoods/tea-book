@@ -54,6 +54,7 @@ function TeaDisplayGroup(props: {
   teaList: readonly FormattedTeaDatabasePage[];
   position: TranslatePosition;
 }) {
+  // Hardcoded positions to layout each tea in a 2x3 grid
   const positions = [
     "30 85",
     "30 180",
@@ -72,9 +73,6 @@ function TeaDisplayGroup(props: {
   );
 }
 
-/** Matches </svg> */
-const SVG_CLOSING_TAG = /<\/svg\s*>/;
-
 /**
  * Creates an SVG file to the current directory to use as an ebook cover.
  * The image contains a summary of the given tea information.
@@ -86,7 +84,7 @@ const SVG_CLOSING_TAG = /<\/svg\s*>/;
  * @param bottomDisplayTeas Items displayed on the bottom half of the cover.
  * @returns Promise that resolves once the cover image is written.
  */
-export async function generateSvg(
+export async function generateSvgCover(
   topDisplayTeas: readonly FormattedTeaDatabasePage[],
   bottomDisplayTeas: readonly FormattedTeaDatabasePage[],
 ) {
@@ -95,12 +93,12 @@ export async function generateSvg(
     new URL("../assets/cover.svg", import.meta.url),
   );
 
-  const closingTagMatch = SVG_CLOSING_TAG.exec(svgTemplate);
-  if (!closingTagMatch) {
+  const closingTagIndex = svgTemplate.lastIndexOf('</svg');
+  if (!closingTagIndex) {
     throw new Error("Could not find </svg> tag in template");
   }
-  const templatePrefix = svgTemplate.slice(0, closingTagMatch.index);
-  const templateSuffix = svgTemplate.slice(closingTagMatch.index);
+  const templatePrefix = svgTemplate.slice(0, closingTagIndex);
+  const templateSuffix = svgTemplate.slice(closingTagIndex);
 
   const generatedText: string = (
     <g id="tea">
