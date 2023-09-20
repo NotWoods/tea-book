@@ -18,7 +18,7 @@ can then be converted to a PNG file named `tea.png` using
 the SVG manually, or use its CLI to export the SVG with one command.
 
 ```powershell
-deno run --allow-net=api.notion.com --allow-env=NOTION_TOKEN,NOTION_DB --allow-read --allow-write .\src\generate.ts
+deno run --allow-net=api.notion.com --allow-env --allow-read --allow-write .\src\generate.ts
 inkscape --export-type="png" tea.svg
 ```
 
