@@ -5,7 +5,6 @@ import {
   isFullPage,
 } from "@notionhq/client";
 import { load } from "std/dotenv/mod.ts";
-import h from "vhtml";
 import type { FormattedTeaDatabasePage } from "./types.ts";
 import { assertType, fileUrl, plainText } from "./utils.ts";
 
@@ -78,7 +77,7 @@ export async function fetchTeaPageContent(tea: FormattedTeaDatabasePage) {
       case "image": {
         // Convert image object into HTML image
         const url = fileUrl(block.image);
-        return <img src={url} height="200" />;
+        return `<img src="${url}" height="200" />`;
       }
       default:
         throw new Error(`Unexpected block type: ${block.type} in ${tea.name}`);

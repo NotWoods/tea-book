@@ -2,13 +2,15 @@
   "imports": {
     "std/": "https://deno.land/std@0.202.0/",
     "@notionhq/client": "npm:@notionhq/client@2.2.3",
-    "vhtml": "https://esm.sh/vhtml@2.2.0"
+    "react": "https://esm.sh/react@18.2.0",
+    "react/jsx-runtime": "https://esm.sh/react@18.2.0/jsx-runtime",
+    "react-dom/server": "https://esm.sh/react-dom@18.2.0/server"
   },
   "tasks": {
     "generate": "deno run --allow-net=api.notion.com --allow-env=NOTION_TOKEN,NOTION_DB,NODE_EXTRA_CA_CERTS --allow-read --allow-write=. ./src/generate.ts"
   },
   "compilerOptions": {
-    "jsxFactory": "h",
-    "jsxFragmentFactory": "undefined"
+    "jsx": "react-jsx",
+    "jsxImportSource": "react"
   }
 }

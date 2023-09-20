@@ -1,4 +1,4 @@
-import h from "vhtml";
+import { renderToReadableStream } from "react-dom/server";
 import { CAFFEINE_LEVELS, FormattedTeaDatabasePage } from "./notion/types.ts";
 
 /** String with x and y space separated values */
@@ -28,16 +28,16 @@ function TeaInfo(props: {
   return (
     <g transform={`translate(${position})`}>
       {/* Name of the tea */}
-      <text transform={transform} class="name">
+      <text transform={transform} className="name">
         {name}
       </text>
       <line x1="0" y1="10" x2="220" y2="10" stroke="black" />
       {/* Tea type (ie black tea, green tea) and caffeine level */}
-      <text y="30" class="desc">
+      <text y="30" className="desc">
         {tea.type}, {caffeine}
       </text>
       {/* Serving size, how long to steep the tea for, and what temperature water to use */}
-      <text y="48" class="desc">
+      <text y="48" className="desc">
         {serving}, steep {tea.steepTime}, {tea.temperature}
       </text>
     </g>
@@ -84,10 +84,10 @@ function TeaDisplayGroup(props: {
  * @param bottomDisplayTeas Items displayed on the bottom half of the cover.
  * @returns Promise that resolves once the cover image is written.
  */
-export async function generateSvgCover(
+export async function* generateSvgCover(
   topDisplayTeas: readonly FormattedTeaDatabasePage[],
   bottomDisplayTeas: readonly FormattedTeaDatabasePage[],
-) {
+): AsyncIterable<string> {
   // Open template file
   const svgTemplate = await Deno.readTextFile(
     new URL("../assets/cover.svg", import.meta.url),
@@ -97,16 +97,18 @@ export async function generateSvgCover(
   if (!closingTagIndex) {
     throw new Error("Could not find </svg> tag in template");
   }
+  // Most of the template content, except for the closing </svg> tag
   const templatePrefix = svgTemplate.slice(0, closingTagIndex);
+  // The closing </svg> tag
   const templateSuffix = svgTemplate.slice(closingTagIndex);
 
-  const generatedText: string = (
+  yield templatePrefix;
+  // Insert the generated content just before the closing </svg> tag
+  yield* await renderToReadableStream(
     <g id="tea">
       <TeaDisplayGroup teaList={topDisplayTeas} position="8 8" />
       <TeaDisplayGroup teaList={bottomDisplayTeas} position="8 360" />
-    </g>
+    </g>,
   );
-
-  // Insert the generated content just before the closing </svg> tag
-  return templatePrefix + generatedText + templateSuffix;
+  yield templateSuffix;
 }

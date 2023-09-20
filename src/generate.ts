@@ -88,17 +88,17 @@ css: assets/epub.css
 ...`;
 
   yield "\n\n";
-  yield* generateTeaTableHtml("Display (top)", topDisplayTeas, 1);
+  yield* await generateTeaTableHtml("Display (top)", topDisplayTeas, 1);
 
   yield "\n\n";
-  yield* generateTeaTableHtml(
+  yield* await generateTeaTableHtml(
     "Display (bottom)",
     bottomDisplayTeas,
     topDisplayTeas.length + 1,
   );
 
   yield "\n\n";
-  yield* generateTeaTableHtml(
+  yield* await generateTeaTableHtml(
     "Pantry",
     pantryTeas,
     topDisplayTeas.length + bottomDisplayTeas.length + 1,
@@ -115,8 +115,10 @@ const teaCollection = await getTeaCollection();
 const { topDisplayTeas, bottomDisplayTeas } = teaCollection;
 
 // Generate the cover image SVG
-const svg = await generateSvgCover(topDisplayTeas, bottomDisplayTeas);
-await Deno.writeTextFile("tea.svg", svg);
+await writeTextFile(
+  generateSvgCover(topDisplayTeas, bottomDisplayTeas),
+  "tea.svg",
+);
 
 // Write the book file for pandoc
 writeTextFile(generateBookMarkdown(teaCollection), "tea-list.txt");

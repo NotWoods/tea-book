@@ -1,4 +1,4 @@
-import h from "vhtml";
+import { renderToReadableStream } from "react-dom/server";
 import { CAFFEINE_LEVELS, FormattedTeaDatabasePage } from "./notion/types.ts";
 
 /**
@@ -33,11 +33,11 @@ export function TeaTable(
       <caption>{caption}</caption>
       <thead>
         <tr>
-          <th class="cell-caffeine">Caffeine</th>
-          <th class="cell-temperature">Temp</th>
-          <th class="cell-steep-time">Steep time</th>
-          <th class="cell-serving">Serving</th>
-          <th class="cell-type">Type</th>
+          <th className="cell-caffeine">Caffeine</th>
+          <th className="cell-temperature">Temp</th>
+          <th className="cell-steep-time">Steep time</th>
+          <th className="cell-serving">Serving</th>
+          <th className="cell-type">Type</th>
         </tr>
       </thead>
       <tbody>
@@ -48,18 +48,18 @@ export function TeaTable(
           return (
             <>
               <tr>
-                <th class="cell-name" colspan={5}>
+                <th className="cell-name" colSpan={5}>
                   <a href={chapterLink}>{tea.name}</a>
                 </th>
               </tr>
               <tr>
-                <td class="cell-caffeine">
+                <td className="cell-caffeine">
                   {changeCaffeineCharacters(tea.caffeine)}
                 </td>
-                <td class="cell-temperature">{tea.temperature}</td>
-                <td class="cell-steep-time">{tea.steepTime}</td>
-                <td class="cell-serving">{tea.serving}</td>
-                <td class="cell-type">{tea.type}</td>
+                <td className="cell-temperature">{tea.temperature}</td>
+                <td className="cell-steep-time">{tea.steepTime}</td>
+                <td className="cell-serving">{tea.serving}</td>
+                <td className="cell-type">{tea.type}</td>
               </tr>
             </>
           );
@@ -78,13 +78,13 @@ export function generateTeaTableHtml(
   caption: string,
   teaList: readonly FormattedTeaDatabasePage[],
   startingIndex: number,
-) {
-  return (
+): Promise<ReadableStream<string>> {
+  return renderToReadableStream(
     <TeaTable
       caption={caption}
       teaList={teaList}
       startingIndex={startingIndex}
-    />
+    />,
   );
 }
 
