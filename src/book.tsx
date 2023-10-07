@@ -1,4 +1,4 @@
-import { renderToReadableStream } from "react-dom/server";
+import { renderToStaticMarkup } from "react-dom/server";
 import { CAFFEINE_LEVELS, FormattedTeaDatabasePage } from "./notion/types.ts";
 
 /**
@@ -78,8 +78,8 @@ export function generateTeaTableHtml(
   caption: string,
   teaList: readonly FormattedTeaDatabasePage[],
   startingIndex: number,
-): Promise<ReadableStream<string>> {
-  return renderToReadableStream(
+): string {
+  return renderToStaticMarkup(
     <TeaTable
       caption={caption}
       teaList={teaList}

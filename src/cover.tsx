@@ -1,4 +1,4 @@
-import { renderToReadableStream } from "react-dom/server";
+import { renderToStaticMarkup } from "react-dom/server";
 import { CAFFEINE_LEVELS, FormattedTeaDatabasePage } from "./notion/types.ts";
 
 /** String with x and y space separated values */
@@ -104,7 +104,7 @@ export async function* generateSvgCover(
 
   yield templatePrefix;
   // Insert the generated content just before the closing </svg> tag
-  yield* await renderToReadableStream(
+  yield renderToStaticMarkup(
     <g id="tea">
       <TeaDisplayGroup teaList={topDisplayTeas} position="8 8" />
       <TeaDisplayGroup teaList={bottomDisplayTeas} position="8 360" />

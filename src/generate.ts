@@ -67,6 +67,16 @@ ${content.join("\n\n")}
 async function writeTextFile(input: AsyncIterable<string>, fileName: string) {
   const file = await Deno.open(fileName, { write: true, create: true });
   await ReadableStream.from(input)
+    .pipeThrough(
+      new TransformStream({
+        transform(chunk, controller) {
+          if (typeof chunk !== 'string') {
+          console.log(chunk);
+          }
+          controller.enqueue(chunk);
+        },
+      }),
+    )
     .pipeThrough(new TextEncoderStream())
     .pipeTo(file.writable);
 }
@@ -88,17 +98,17 @@ css: assets/epub.css
 ...`;
 
   yield "\n\n";
-  yield* await generateTeaTableHtml("Display (top)", topDisplayTeas, 1);
+  yield generateTeaTableHtml("Display (top)", topDisplayTeas, 1);
 
   yield "\n\n";
-  yield* await generateTeaTableHtml(
+  yield generateTeaTableHtml(
     "Display (bottom)",
     bottomDisplayTeas,
     topDisplayTeas.length + 1,
   );
 
   yield "\n\n";
-  yield* await generateTeaTableHtml(
+  yield generateTeaTableHtml(
     "Pantry",
     pantryTeas,
     topDisplayTeas.length + bottomDisplayTeas.length + 1,
