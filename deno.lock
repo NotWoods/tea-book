@@ -78,11 +78,22 @@
       }
     }
   },
+  "redirects": {
+    "https://esm.sh/v128/@types/react@~18.2/jsx-runtime~.d.ts": "https://esm.sh/v128/@types/react@18.2.21/jsx-runtime~.d.ts"
+  },
   "remote": {
     "https://deno.land/std@0.202.0/datetime/_common.ts": "f5c1cb784c616151a3d8198a4ab29f65b7fe5c20a105d8979bde9558c7b52910",
     "https://deno.land/std@0.202.0/datetime/format.ts": "2d7a430ca9571e054ac181dcb950faf9ac23445e081dcb230ca37134e6eaad0c",
     "https://deno.land/std@0.202.0/dotenv/mod.ts": "1da8c6d0e7f7d8a5c2b19400b763bc11739df24acec235dda7ea2cfd3d300057",
-    "https://esm.sh/v116/vhtml@2.2.0/deno/vhtml.mjs": "57e2af656dc6415cfd43ff32bffc47f6f325e64de375ef99caeae1ac6010eaed",
-    "https://esm.sh/vhtml@2.2.0": "b82a2f3d1c41abc442c708301583cd3df96112b6d4ee2b63db50bca31bfe8f9b"
+    "https://esm.sh/react-dom@18.2.0/server": "9051a605acc3a99f9e809db4726acebda1ad1bd460b793b57c391e5e7f42479a",
+    "https://esm.sh/react@18.2.0/jsx-runtime": "914a55a07c388d345c5a0c11616ee5282242e8b8dfd0d505b83500ea04fd9870",
+    "https://esm.sh/stable/react@18.2.0/denonext/jsx-runtime.js": "54d8a51c6ca025380abd2d5302e4a9b38ff835d9759c4657e52314f587eaf6bf",
+    "https://esm.sh/stable/react@18.2.0/denonext/react.mjs": "3c4f23bcfc53b256fcfaf6f834fa9f584c3bb7be667b2682c6cb6ba8ef88f8e6",
+    "https://esm.sh/v132/react-dom@18.2.0/denonext/server.js": "0460557cf83e61c275692fc0b9b22837cad662db116c048e354eac3109f8b326"
+  },
+  "workspace": {
+    "dependencies": [
+      "npm:@notionhq/client@2.2.3"
+    ]
   }
 }

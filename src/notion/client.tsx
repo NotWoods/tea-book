@@ -80,6 +80,19 @@ export async function fetchTeaPageContent(tea: FormattedTeaDatabasePage) {
         const url = fileUrl(block.image);
         return <img src={url} height="200" />;
       }
+      case "numbered_list_item":
+        return `<ol>${
+          block.numbered_list_item.rich_text.map((textBlock) => {
+            switch (textBlock.type) {
+              case "text":
+                return `<li>${textBlock.plain_text}</li>`;
+              default:
+                throw new Error(
+                  `Unexpected nested text block type: ${textBlock.type} in ${tea.name}`,
+                );
+            }
+          })
+        }</ol>`;
       default:
         throw new Error(`Unexpected block type: ${block.type} in ${tea.name}`);
     }
